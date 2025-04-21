@@ -3,7 +3,20 @@ services:
     build: ./web-app
     ports:
       - "5003:5003"
+    depends_on:
+      - mongodb
     environment:
       - FLASK_ENV=development
     volumes:
       - ./web-app:/app
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
