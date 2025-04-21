@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <title>Build Your Bagel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            padding: 2em;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            max-width: 600px;
+            margin: auto;
+            padding: 2em;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        select, input[type="checkbox"] {
+            margin: 0.5em;
+        }
+
+        button {
+            margin-top: 1em;
+            padding: 10px 20px;
+            background: #235a31;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1c4727;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥯 Build Your Own Bagel</h1>
+
+        <form action="/build-bagel" method="POST">
+            <label for="bagelType">Choose a bagel type:</label><br>
+            <select id="bagelType" name="bagel_type" required>
+                <option value="plain">Plain</option>
+                <option value="everything">Everything</option>
+                <option value="sesame">Sesame</option>
+                <option value="wholewheat">Whole Wheat</option>
+                <option value="cinnamon">Cinnamon Raisin</option>
+            </select><br><br>
+
+            <label>Choose up to 4 toppings:</label><br>
+            <input type="checkbox" name="toppings" value="cream_cheese"> Cream Cheese<br>
+            <input type="checkbox" name="toppings" value="onion"> Onion<br>
+            <input type="checkbox" name="toppings" value="bacon"> Bacon<br>
+            <input type="checkbox" name="toppings" value="egg"> Egg<br>
+            <input type="checkbox" name="toppings" value="cheese"> Cheese<br>
+            <input type="checkbox" name="toppings" value="lox_salmon"> Lox Salmon<br>
+
+            <button type="submit">Find the Best Deli</button>
+        </form>
+    </div>
+</body>
+</html>
