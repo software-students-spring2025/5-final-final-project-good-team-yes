@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bagel Prices by Deli</title>
+    <title>Custom Bagel Results</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
         }
 
         .results {
-            max-width: 700px;
+            max-width: 800px;
             margin: auto;
             background: white;
             border-radius: 10px;
@@ -36,7 +36,7 @@
 
         .toppings {
             color: #777;
-            font-size: 0.9em;
+            font-size: 0.95em;
         }
 
         a {
@@ -54,12 +54,13 @@
 </head>
 <body>
     <div class="results">
-        <h1>💼 Prices for a {{ bagel }} Bagel with:</h1>
+        <h1>💼 Custom Bagel Price Results</h1>
         <p class="toppings">
+            For a <strong>{{ bagel }}</strong> bagel with
             {% if toppings %}
                 {{ toppings | join(', ') }}
             {% else %}
-                (no toppings)
+                no toppings
             {% endif %}
         </p>
 
@@ -67,11 +68,12 @@
             {% for deli in delis %}
                 <div class="deli">
                     <h3>{{ deli.name }}</h3>
-                    <p>💰 ${{ deli.price }}</p>
+                    <p>💰 Price: ${{ deli.price }}</p>
+                    <p>📍 Location: ({{ deli.lat }}, {{ deli.lon }})</p>
                 </div>
             {% endfor %}
         {% else %}
-            <p> No delis can make this bagel combo.</p>
+            <p>😕 No delis can make this bagel combo.</p>
         {% endif %}
 
         <a href="/">← Back to Home</a>
