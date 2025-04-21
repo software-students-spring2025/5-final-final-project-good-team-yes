@@ -21,13 +21,44 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1em;
+            margin-top: 1em;
+            margin-bottom: 1em;
+            width: 80%;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #235a31;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1c4727;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h1>Welcome to Manhattan Deli Price Tracker</h1>
-        <p>Your go-to place to track bacon, eggs, and cheese prices in the city.</p>
+        <p>Your go-to place to track bacon, egg, and cheese prices in the city.</p>
+
+        <form action="/find-deli" method="POST">
+            <label for="price">Enter your target price (USD):</label><br>
+            <input type="number" id="price" name="price" step="0.01" min="0" placeholder="e.g. 4.50" required>
+            <br>
+            <button type="submit">Find Delis</button>
+        </form>
     </div>
 </body>
 
