@@ -1,3 +1,7 @@
-# Final Project
+# NYC Sandwich Price Tracker
 
-An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
+[![Web App CI/CD](https://github.com/user/repo/actions/workflows/web-app.yml/badge.svg)](https://github.com/user/repo/actions/workflows/web-app.yml)
+[![MongoDB CI/CD](https://github.com/user/repo/actions/workflows/mongodb.yml/badge.svg)](https://github.com/user/repo/actions/workflows/mongodb.yml)
+
+A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City.
+

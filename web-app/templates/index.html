@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Sandwich Price Tracker</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Application CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">🥪</div>
+            <div class="title">NYC Sandwich Price Tracker</div>
+        </div>
+        <button id="toggleSidebar" class="mobile-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+    
+    <div class="container">
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+        
+        <aside class="sidebar">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="status-message {{ category }}-message" style="display:block; margin: 10px;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div id="filterSection" class="sidebar-section">
+                <div class="sidebar-title">
+                    <span>Filter Prices</span>
+                    <button class="sidebar-collapse" data-target="filterContent">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+                <div id="filterContent" class="collapse-content">
+                    <form action="{{ url_for('home') }}" method="GET">
+                        <div class="filter-group">
+                            <div class="form-group">
+                                <label for="min_price">Min Price ($)</label>
+                                <input type="number" id="min_price" name="min_price" min="0" step="0.01" value="{{ min_price or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="max_price">Max Price ($)</label>
+                                <input type="number" id="max_price" name="max_price" min="0" step="0.01" value="{{ max_price or '' }}">
+                            </div>
+                        </div>
+                        <button type="submit" class="blue-btn">
+                            <i class="fas fa-filter"></i> Apply Filter
+                        </button>
+                        <a href="{{ url_for('home') }}" class="btn">
+                            <i class="fas fa-undo"></i> Reset
+                        </a>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="addSection" class="sidebar-section">
+                <div class="sidebar-title">
+                    <span>Add New Price</span>
+                    <button class="sidebar-collapse" data-target="addContent">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+                <div id="addContent" class="collapse-content">
+                    <form action="{{ url_for('add_sandwich') }}" method="POST" id="addForm">
+                        <div class="form-group">
+                            <label for="name">Deli Name</label>
+                            <input type="text" id="name" name="name" required placeholder="e.g., Joe's Deli">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="addr">Address</label>
+                            <input type="text" id="addr" name="address" required placeholder="e.g., 123 Main St, Brooklyn">
+                            <p class="help-text">New York, NY will be automatically added if not included</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="price">Sandwich Price ($)</label>
+                            <input type="number" id="price" name="price" step="0.01" min="0" required placeholder="e.g., 7.50">
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button type="submit">
+                                <i class="fas fa-plus"></i> Add Price
+                            </button>
+                            <a href="{{ url_for('home') }}" class="btn">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="searchSection" class="sidebar-section">
+                <div class="sidebar-title">
+                    <span>Find Sandwich Spots</span>
+                    <button class="sidebar-collapse" data-target="searchContent">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+                <div id="searchContent" class="collapse-content">
+                    <form action="{{ url_for('search') }}" method="GET">
+                        <div class="form-group">
+                            <label for="address">Search Near Address</label>
+                            <div class="address-search">
+                                <input type="text" id="address" name="address" placeholder="e.g., 123 Main St, Brooklyn" value="{{ search_query or '' }}">
+                                <button type="submit" class="blue-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <p class="help-text">Find sandwich spots near a specific location</p>
+                        </div>
+                    </form>
+                    
+                    <div id="search-results" class="search-results">
+                        {% if search_results %}
+                            <div class="address-result">
+                                <p><strong>Found:</strong> {{ search_results.display_name }}</p>
+                                <p><strong>Coordinates:</strong> {{ "%.6f"|format(search_results.lat) }}, {{ "%.6f"|format(search_results.lon) }}</p>
+                            </div>
+                            
+                            {% if nearby_sandwiches %}
+                                <div class="nearby-sandwiches">
+                                    <h4>Nearby Sandwich Spots ({{ nearby_sandwiches|length }})</h4>
+                                    <ul class="sandwich-list">
+                                        {% for sandwich in nearby_sandwiches %}
+                                            <li>
+                                                <strong>{{ sandwich.name }}</strong><br>
+                                                <span class="sandwich-price">${{ "%.2f"|format(sandwich.price) }}</span>
+                                                <span class="sandwich-distance">{{ "%.2f"|format(sandwich.distance) }} km away</span>
+                                                <span class="sandwich-address">{{ sandwich.address }}</span>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <div class="nearby-sandwiches">
+                                    <p>No sandwich spots found nearby. Add the first one below!</p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    
+    <!-- Minimal required JavaScript -->
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('toggleSidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-bars')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Collapse sections
+        document.querySelectorAll('.sidebar-collapse').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const content = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                
+                if (content.style.maxHeight === '0px') {
+                    content.style.maxHeight = '500px';
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    content.style.maxHeight = '0px';
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+        });
+
+        // Initialize map with server-rendered data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the map
+            const map = L.map('map').setView([{{ center_lat }}, {{ center_lon }}], {{ zoom_level|default(13) }});
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Add legend to map
+            const legend = L.control({position: 'bottomleft'});
+            legend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = `
+                    <div><b>Price Ranges</b></div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #4CAF50"></span> Under $6.00
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #2196F3"></span> $6.00 - $6.99
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #FFC107"></span> $7.00 - $7.99
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background: #F44336"></span> $8.00+
+                    </div>
+                `;
+                return div;
+            };
+            legend.addTo(map);
+            
+            // Add markers for all sandwiches
+            {% if sandwiches %}
+                {% for sandwich in sandwiches %}
+                    L.circleMarker([{{ sandwich.lat }}, {{ sandwich.lon }}], {
+                        radius: 12,
+                        fillColor: "{{ sandwich.color }}",
+                        color: "#000",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map).bindPopup(
+                        "<strong>{{ sandwich.name }}</strong><br>" +
+                        "{{ sandwich.address }}<br>" +
+                        "<b>Price: ${{ "%.2f"|format(sandwich.price) }}</b>"
+                    );
+                {% endfor %}
+            {% endif %}
+            
+            // Add search result marker if present
+            {% if search_results %}
+                const searchMarker = L.marker([{{ search_results.lat }}, {{ search_results.lon }}]).addTo(map);
+                searchMarker.bindPopup("<strong>{{ search_results.display_name }}</strong>").openPopup();
+            {% endif %}
+            
+            // Auto-hide flash messages after 5 seconds
+            setTimeout(function() {
+                document.querySelectorAll('.status-message').forEach(msg => {
+                    msg.style.display = 'none';
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html> 
