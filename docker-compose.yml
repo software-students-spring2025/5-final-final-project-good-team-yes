@@ -1,22 +1,40 @@
+version: '3.8'
+
 services:
-  web: 
+  web-app:
     build: ./web-app
+    container_name: sandwich-tracker-web
     ports:
       - "5003:5003"
-    depends_on:
-      - mongodb
-    environment:
-      - FLASK_ENV=development
     volumes:
       - ./web-app:/app
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB=sandwich_db
+      - FLASK_ENV=development
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+    networks:
+      - app-network
 
   mongodb:
-    image: mongo
-    container_name: mongodb
-    ports:
-      - "27017:27017"
+    build: ./mongodb
+    container_name: sandwich-tracker-mongodb
     volumes:
       - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=sandwich_db
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   mongo-data:
+    driver: local 

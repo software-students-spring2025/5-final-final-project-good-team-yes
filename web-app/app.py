@@ -1,104 +1,84 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from datetime import datetime
-from bson import ObjectId
 import os
-import requests
+
 app = Flask(__name__)
 
+# Connect to MongoDB
 client = MongoClient("mongodb://mongodb:27017")
-db = client["deli_db"]
-collection = db["deli_prices"]
+db = client["sandwich_db"]
+collection = db["sandwich_prices"]
 
+# Add initial data if database is empty
 if collection.count_documents({}) == 0:
     collection.insert_many([
         {
             "name": "Joe's Deli",
+            "address": "123 Broadway, New York, NY",
             "lat": 40.728,
             "lon": -73.991,
-            "base_price": 3.00,
-            "bagel_types": ["plain", "everything", "sesame"],
-            "topping_prices": {
-                "cream_cheese": 0.50,
-                "onion": 0.25,
-                "bacon": 1.00,
-                "egg": 0.75,
-                "cheese": 0.50,
-                "lox_salmon": 2.00
-            }
+            "price": 5.99,
+            "last_updated": datetime.now()
         },
         {
             "name": "East Side Bites",
+            "address": "456 Madison Ave, New York, NY",
             "lat": 40.732,
             "lon": -73.987,
-            "base_price": 3.50,
-            "bagel_types": ["plain", "wholewheat", "everything"],
-            "topping_prices": {
-                "cream_cheese": 0.75,
-                "onion": 0.30,
-                "bacon": 1.25,
-                "egg": 0.75,
-                "cheese": 0.65,
-                "lox_salmon": 2.50
-            }
+            "price": 6.50,
+            "last_updated": datetime.now()
+        },
+        {
+            "name": "West Village Deli",
+            "address": "789 Greenwich St, New York, NY",
+            "lat": 40.735,
+            "lon": -74.005,
+            "price": 7.25,
+            "last_updated": datetime.now()
         }
     ])
 
 @app.route("/")
 def home():
-    """Render the homepage."""
-    return render_template("home.html")
+    """Render the single-page application."""
+    return render_template("index.html")
 
-@app.route("/price-search")
-def price_search():
-    return render_template("price-search.html")
+@app.route("/api/sandwiches", methods=["GET"])
+def get_sandwiches():
+    """API endpoint to get all sandwich data."""
+    max_price = request.args.get('max_price', None)
+    min_price = request.args.get('min_price', None)
+    
+    query = {}
+    if max_price:
+        query["price"] = {"$lte": float(max_price)}
+    if min_price:
+        if "price" in query:
+            query["price"]["$gte"] = float(min_price)
+        else:
+            query["price"] = {"$gte": float(min_price)}
+    
+    results = list(collection.find(query, {"_id": 0}))
+    return jsonify(results)
 
-@app.route("/find-deli", methods=["POST"])
-def find_deli():
-    """Return map based on user given price"""
-    target_price = float(request.form["price"])
-    results = collection.find({"price": {"$lte": target_price}})
-
-    matching_delis = [
-        {"name": d["name"], "lat": d["lat"], "lon": d["lon"], "price": d["price"]}
-        for d in results
-    ]
-    return render_template("map.html", delis=matching_delis)
-
-@app.route("/custom-bagel")
-def custom_bagel():
-    return render_template("custom-bagel.html")
-
-@app.route("/build-bagel", methods=["POST"])
-def build_bagel():
-    bagel_type = request.form["bagel_type"]
-    toppings = request.form.getlist("toppings")
-
-    matching_delis = []
-
-    for deli in collection.find():
-        if bagel_type not in deli.get("bagel_types", []):
-            continue
-
-        price = deli.get("base_price", deli.get("price", 0)) 
-        topping_prices = deli.get("topping_prices", {})
-
-        for topping in toppings:
-            price += topping_prices.get(topping, 0)
-
-        matching_delis.append({
-            "name": deli["name"],
-            "lat": deli["lat"],
-            "lon": deli["lon"],
-            "price": round(price, 2)
-        })
-
-    # Sort by total price
-    matching_delis.sort(key=lambda d: d["price"])
-    return render_template("mapbymybagel.html", delis=matching_delis, bagel=bagel_type, toppings=toppings)
-
-
-
+@app.route("/api/sandwiches", methods=["POST"])
+def add_sandwich():
+    """API endpoint to add a new sandwich location."""
+    data = request.json
+    
+    # Validate required fields
+    required_fields = ["name", "address", "lat", "lon", "price"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing required field: {field}"}), 400
+    
+    # Add timestamp
+    data["last_updated"] = datetime.now()
+    
+    # Insert into database
+    collection.insert_one(data)
+    return jsonify({"success": True}), 201
 
 if __name__ == "__main__":
     app.run(
