@@ -5,12 +5,10 @@ import os
 
 app = Flask(__name__)
 
-# Connect to MongoDB
 client = MongoClient("mongodb://mongodb:27017")
 db = client["sandwich_db"]
 collection = db["sandwich_prices"]
 
-# Add initial data if database is empty
 if collection.count_documents({}) == 0:
     collection.insert_many([
         {
@@ -67,16 +65,13 @@ def add_sandwich():
     """API endpoint to add a new sandwich location."""
     data = request.json
     
-    # Validate required fields
     required_fields = ["name", "address", "lat", "lon", "price"]
     for field in required_fields:
         if field not in data:
             return jsonify({"error": f"Missing required field: {field}"}), 400
     
-    # Add timestamp
     data["last_updated"] = datetime.now()
     
-    # Insert into database
     collection.insert_one(data)
     return jsonify({"success": True}), 201
 

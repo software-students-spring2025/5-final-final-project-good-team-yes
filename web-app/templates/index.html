@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NYC Sandwich Price Tracker</title>
     
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     
-    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -392,7 +390,6 @@
                             <input type="number" id="price" name="price" step="0.01" min="0" required>
                         </div>
                         
-                        <!-- Hidden inputs for lat/lon -->
                         <input type="hidden" id="lat" name="lat">
                         <input type="hidden" id="lon" name="lon">
                         
@@ -516,26 +513,20 @@
         const applyFilterButton = document.getElementById('applyFilter');
         const resetFilterButton = document.getElementById('resetFilter');
         
-        // Initialize markers array
         let markers = [];
         
-        // Load sandwich data on page load
         loadSandwiches();
         
-        // Function to load sandwich data from API
         function loadSandwiches(minPrice = null, maxPrice = null) {
-            // Clear existing markers
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
             
-            // Build query parameters
             let url = '/api/sandwiches';
             let params = [];
             if (minPrice !== null) params.push(`min_price=${minPrice}`);
             if (maxPrice !== null) params.push(`max_price=${maxPrice}`);
             if (params.length > 0) url += '?' + params.join('&');
             
-            // Fetch data
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -558,7 +549,6 @@
                         markers.push(marker);
                     });
                     
-                    // If no results, show message
                     if (data.length === 0) {
                         alert('No sandwiches found with the selected price range.');
                     }
@@ -568,7 +558,6 @@
                 });
         }
         
-        // Search address functionality
         let tempMarker;
         
         searchButton.addEventListener('click', function() {
@@ -579,7 +568,6 @@
             searchButton.disabled = true;
             errorMessage.style.display = 'none';
             
-            // Use Nominatim for geocoding
             const searchQuery = encodeURIComponent(address);
             fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${searchQuery}&limit=1`)
                 .then(response => response.json())
@@ -709,14 +697,12 @@
             loadSandwiches(minPrice, maxPrice);
         });
         
-        // Reset filter
         resetFilterButton.addEventListener('click', function() {
             minPriceInput.value = '';
             maxPriceInput.value = '';
             loadSandwiches();
         });
         
-        // Enter key in address field
         addressInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
