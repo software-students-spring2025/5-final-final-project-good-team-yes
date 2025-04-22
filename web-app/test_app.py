@@ -10,8 +10,9 @@ class AppTestCase(unittest.TestCase):
         self.client = app.test_client()
         self.client.testing = True 
 
-    def test_home_status_code(self):
+    def test_home_status_code(self, mock_collection):
         """Test that the single-page application loads successfully."""
+        mock_collection.find.return_value = [] 
         result = self.client.get('/')
         self.assertEqual(result.status_code, 200)
 
@@ -76,6 +77,19 @@ class AppTestCase(unittest.TestCase):
         self.assertIn('price', query)
         self.assertEqual(query['price']['$lte'], 7.0)
         self.assertEqual(query['price']['$gte'], 5.0)
+    
+    @patch("app.geocode_with_local_database")
+    def test_geocode_local_success(self, mock_local):
+        """ Test PRE API geocode endpoint"""
+        mock_local.return_value = {
+            "lat": 40.7128,
+            "lon": -74.0060,
+            "display_name": "Mock Address",
+            "provider": "local_db"
+        }
+        response = self.client.get("/api/geocode?address=123+Fake+St")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("lat", response.get_json())
 
     @patch('app.collection')
     def test_add_sandwich_api(self, mock_collection):
@@ -110,6 +124,18 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(call_args['name'], 'New Deli')
         self.assertEqual(call_args['address'], '456 New St, Brooklyn, New York, NY 10001, United States')
         self.assertEqual(call_args['price'], 6.99)
+
+    @patch("app.collection")
+    def test_get_nearby_sandwiches(self, mock_collection):
+        mock_data = [
+            {"name": "Nearby Deli", "lat": 40.713, "lon": -74.006, "price": 6.5}
+        ]
+        mock_collection.find.return_value = mock_data
+        response = self.client.get("/api/sandwiches/nearby?lat=40.7128&lon=-74.0060")
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.get_json(), list)
+
+    
 
 if __name__ == '__main__':
     unittest.main() 

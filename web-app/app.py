@@ -7,7 +7,9 @@ import json
 import logging
 import math
 
-app = Flask(__name__, static_folder='static', static_url_path='/static')
+basedir = os.path.abspath(os.path.dirname(__file__))
+app = Flask(__name__, static_folder='static', static_url_path='/static',
+            template_folder=os.path.join(basedir, 'templates'))
 app.secret_key = 'sandwich_tracker_secret_key'  # For flash messages
 
 # Configure logging
@@ -18,33 +20,34 @@ client = MongoClient("mongodb://mongodb:27017")
 db = client["sandwich_db"]
 collection = db["sandwich_prices"]
 
-if collection.count_documents({}) == 0:
-    collection.insert_many([
-        {
-            "name": "Joe's Deli",
-            "address": "123 Broadway, New York, NY",
-            "lat": 40.728,
-            "lon": -73.991,
-            "price": 5.99,
-            "last_updated": datetime.now()
-        },
-        {
-            "name": "East Side Bites",
-            "address": "456 Madison Ave, New York, NY",
-            "lat": 40.732,
-            "lon": -73.987,
-            "price": 6.50,
-            "last_updated": datetime.now()
-        },
-        {
-            "name": "West Village Deli",
-            "address": "789 Greenwich St, New York, NY",
-            "lat": 40.735,
-            "lon": -74.005,
-            "price": 7.25,
-            "last_updated": datetime.now()
-        }
-    ])
+def preload_sandwiches():
+    if collection.count_documents({}) == 0:
+        collection.insert_many([
+            {
+                "name": "Joe's Deli",
+                "address": "123 Broadway, New York, NY",
+                "lat": 40.728,
+                "lon": -73.991,
+                "price": 5.99,
+                "last_updated": datetime.now()
+            },
+            {
+                "name": "East Side Bites",
+                "address": "456 Madison Ave, New York, NY",
+                "lat": 40.732,
+                "lon": -73.987,
+                "price": 6.50,
+                "last_updated": datetime.now()
+            },
+            {
+                "name": "West Village Deli",
+                "address": "789 Greenwich St, New York, NY",
+                "lat": 40.735,
+                "lon": -74.005,
+                "price": 7.25,
+                "last_updated": datetime.now()
+            }
+        ])
 
 # Helper functions for getting marker color
 def get_marker_color(price):
@@ -381,6 +384,7 @@ def api_add_sandwich():
     return jsonify({"success": True}), 201
 
 if __name__ == "__main__":
+    preload_sandwiches()
     app.run(
         host="0.0.0.0", port=5003, debug=True, use_reloader=False, use_debugger=False
     )
