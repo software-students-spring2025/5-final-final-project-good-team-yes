@@ -58,46 +58,36 @@ def get_marker_color(price):
     return "#F44336"  # red
 
 # Geocoding providers
-def geocode_with_nominatim(address):
-    """Geocode an address using Nominatim API."""
+def geocode_address(address):
+    """Simple geocoding using Nominatim API."""
+    # Add NYC context if not present
+    if "new york" not in address.lower() and "ny" not in address.lower():
+        address += ", New York, NY"
+    
+    # URL encode the address
     search_query = requests.utils.quote(address)
-    response = requests.get(
-        f"https://nominatim.openstreetmap.org/search?format=json&q={search_query}&limit=1",
-        headers={'User-Agent': 'NYC Sandwich Price Tracker'}
-    )
     
-    if response.status_code != 200:
-        logger.error(f"Nominatim API error: {response.status_code}")
-        return None
+    # Simple API request
+    url = f"https://nominatim.openstreetmap.org/search?q={search_query}&format=json"
     
-    data = response.json()
-    if not data:
-        logger.info(f"No results from Nominatim for: {address}")
-        return None
-    
-    result = data[0]
-    return {
-        "lat": float(result["lat"]),
-        "lon": float(result["lon"]),
-        "display_name": result["display_name"],
-        "provider": "nominatim"
-    }
-
-def geocode_with_local_database(address):
-    """Try to geocode using our existing database entries."""
-    # Simplified matching - in production you'd want more sophisticated text matching
-    address_lower = address.lower()
-    
-    # Look for partial address matches in our database
-    for deli in collection.find():
-        if any(term in deli["address"].lower() for term in address_lower.split()):
-            logger.info(f"Found address match in database: {deli['address']}")
-            return {
-                "lat": deli["lat"],
-                "lon": deli["lon"],
-                "display_name": deli["address"],
-                "provider": "local_db"
-            }
+    try:
+        response = requests.get(
+            url,
+            headers={'User-Agent': 'NYC Sandwich Price Tracker (contact@example.com)'},
+            timeout=5
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data:
+                result = data[0]
+                return {
+                    "lat": float(result["lat"]),
+                    "lon": float(result["lon"]),
+                    "display_name": result["display_name"]
+                }
+    except Exception as e:
+        logger.error(f"Geocoding error: {str(e)}")
     
     return None
 
@@ -166,6 +156,7 @@ def search():
     """Handle address search and show results."""
     search_results = None
     nearby_sandwiches = []
+    address = ""
     
     if request.method == "POST":
         address = request.form.get("address", "").strip()
@@ -173,30 +164,17 @@ def search():
         address = request.args.get("address", "").strip()
     
     if address:
-        # If address doesn't already include New York, append it
-        if "new york" not in address.lower() and "ny" not in address.lower():
-            address += ", New York, NY"
+        logger.info(f"Search request for address: '{address}'")
         
-        logger.info(f"Searching for address: {address}")
+        # Geocode the address
+        geocode_result = geocode_address(address)
         
-        # Try our database first
-        result = geocode_with_local_database(address)
-        
-        # Fall back to Nominatim
-        if not result:
-            result = geocode_with_nominatim(address)
-        
-        if result:
-            search_results = result
-            nearby_sandwiches = find_nearby_sandwiches(result["lat"], result["lon"])
-            
-            # For logging and debugging
-            logger.info(f"Found location: {result}")
-            logger.info(f"Found {len(nearby_sandwiches)} nearby sandwich shops")
-        
+        if geocode_result:
+            search_results = geocode_result
+            nearby_sandwiches = find_nearby_sandwiches(geocode_result["lat"], geocode_result["lon"])
+            logger.info(f"Found {len(nearby_sandwiches)} sandwiches near location")
         else:
-            # No results found
-            flash("Address not found. Please try a more specific address.", "error")
+            flash("Could not find this address. Please try a more specific NYC address.", "error")
     
     # Get all sandwich data (for map display)
     all_sandwiches = list(collection.find({}, {"_id": 0}))
@@ -240,57 +218,59 @@ def add_sandwich():
         # Get form data
         name = request.form.get("name", "").strip()
         address = request.form.get("address", "").strip()
-        price = request.form.get("price", "")
+        price = request.form.get("price", "").strip()
         
-        # Validate inputs
-        if not name or not address or not price:
+        # Basic validation
+        if not all([name, address, price]):
             flash("All fields are required", "error")
             return redirect(url_for("home"))
         
         try:
             price = float(price)
+            if price <= 0:
+                flash("Price must be greater than zero", "error")
+                return redirect(url_for("home"))
         except ValueError:
             flash("Price must be a valid number", "error")
             return redirect(url_for("home"))
         
-        # If address doesn't already include New York, append it
-        if "new york" not in address.lower() and "ny" not in address.lower():
-            address += ", New York, NY"
-            
         # Geocode the address
-        geocode_result = geocode_with_nominatim(address)
+        logger.info(f"Geocoding address for new sandwich: '{address}'")
+        geocode_result = geocode_address(address)
         
         if not geocode_result:
-            flash("Could not find coordinates for this address. Please try a more specific address.", "error")
+            flash("Could not find this address. Please enter a valid NYC address.", "error")
             return redirect(url_for("home"))
+        
+        logger.info(f"Successfully geocoded to: {geocode_result['lat']}, {geocode_result['lon']}")
             
         # Create new entry
         new_sandwich = {
             "name": name,
-            "address": address,
+            "address": geocode_result["display_name"],
             "lat": geocode_result["lat"],
             "lon": geocode_result["lon"],
             "price": price,
             "last_updated": datetime.now()
         }
         
-        # Check if we already have a sandwich at this location
+        # Check for existing entry
         existing = collection.find_one({
             "lat": {"$gt": new_sandwich["lat"] - 0.0001, "$lt": new_sandwich["lat"] + 0.0001},
             "lon": {"$gt": new_sandwich["lon"] - 0.0001, "$lt": new_sandwich["lon"] + 0.0001},
         })
         
         if existing:
-            flash(f"There is already a sandwich entry for {existing['name']} at this location.", "error")
+            flash(f"There is already a sandwich price for '{existing['name']}' at this location.", "error")
             return redirect(url_for("home"))
         
         # Insert into database
         collection.insert_one(new_sandwich)
         
         # Success message
-        flash("Sandwich price added successfully!", "success")
+        flash(f"Added sandwich price for '{name}' at '{geocode_result['display_name']}'", "success")
         
-        # Redirect to the new location
+        # Redirect to see the new location
         return redirect(url_for("search", address=address))
         
     except Exception as e:
@@ -300,39 +280,20 @@ def add_sandwich():
     return redirect(url_for("home"))
 
 @app.route("/api/geocode", methods=["GET"])
-def geocode_address():
-    """Server-side geocoding endpoint with multiple providers."""
+def api_geocode():
+    """API endpoint for geocoding."""
     address = request.args.get('address', '')
     
     if not address:
         return jsonify({"error": "Address parameter is required"}), 400
     
-    # If address doesn't already include New York, append it
-    if "new york" not in address.lower() and "ny" not in address.lower():
-        address += ", New York, NY"
+    # Geocode the address
+    result = geocode_address(address)
     
-    logger.info(f"Geocoding address: {address}")
-    
-    # Try our database first (fastest)
-    try:
-        result = geocode_with_local_database(address)
-        if result:
-            logger.info(f"Found address in local database: {result}")
-            return jsonify(result)
-    except Exception as e:
-        logger.error(f"Error with local database geocoding: {e}")
-    
-    # Try Nominatim
-    try:
-        result = geocode_with_nominatim(address)
-        if result:
-            logger.info(f"Found address with Nominatim: {result}")
-            return jsonify(result)
-    except Exception as e:
-        logger.error(f"Error with Nominatim geocoding: {e}")
-    
-    # If we get here, all providers failed
-    return jsonify({"error": "Address not found with any provider"}), 404
+    if result:
+        return jsonify(result)
+    else:
+        return jsonify({"error": "Address not found"}), 404
 
 @app.route("/api/sandwiches/nearby", methods=["GET"])
 def get_nearby_sandwiches():
@@ -383,4 +344,4 @@ def api_add_sandwich():
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0", port=5003, debug=True, use_reloader=False, use_debugger=False
-    )
+    ) 

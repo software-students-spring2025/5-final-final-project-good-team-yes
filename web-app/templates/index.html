@@ -86,9 +86,9 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="addr">Address</label>
-                            <input type="text" id="addr" name="address" required placeholder="e.g., 123 Main St, Brooklyn">
-                            <p class="help-text">New York, NY will be automatically added if not included</p>
+                            <label for="addr">NYC Address</label>
+                            <input type="text" id="addr" name="address" required placeholder="e.g., 123 Broadway, Manhattan">
+                            <p class="help-text">Be specific! Include street number, name, and borough (Manhattan, Brooklyn, etc.).</p>
                         </div>
                         
                         <div class="form-group">
@@ -120,12 +120,12 @@
                         <div class="form-group">
                             <label for="address">Search Near Address</label>
                             <div class="address-search">
-                                <input type="text" id="address" name="address" placeholder="e.g., 123 Main St, Brooklyn" value="{{ search_query or '' }}">
+                                <input type="text" id="address" name="address" placeholder="e.g., 125 W 44th St, Manhattan" value="{{ search_query or '' }}">
                                 <button type="submit" class="blue-btn">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
-                            <p class="help-text">Find sandwich spots near a specific location</p>
+                            <p class="help-text">Be specific with the NYC address - include street number, name, and borough.</p>
                         </div>
                     </form>
                     
