@@ -5,3 +5,14 @@
 
 A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City.
 
+## Dependency Management
+
+This project uses requirements.txt for managing dependencies. To add new dependencies:
+
+1. Add them to requirements.txt
+2. Rebuild the Docker image
+
+## Development
+
+[Your existing content here...]
+

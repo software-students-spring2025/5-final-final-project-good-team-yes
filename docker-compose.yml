@@ -1,13 +1,9 @@
-version: '3.8'
-
 services:
   web-app:
     build: ./web-app
     container_name: sandwich-tracker-web
     ports:
       - "5003:5003"
-    volumes:
-      - ./web-app:/app
     environment:
       - MONGO_URI=mongodb://mongodb:27017
       - MONGO_DB=sandwich_db
