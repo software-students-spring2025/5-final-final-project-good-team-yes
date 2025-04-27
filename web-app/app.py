@@ -97,6 +97,19 @@ def get_marker_color(price):
 
 def geocode_address(address):
     """Simple geocoding using Nominatim API."""
+
+    """
+    Assume that if no borough is given, the user means Manhattan.
+    This is mostly to ensure that the centering algorithm for the 
+    map more accurately centers around the city
+    """
+    if ("manhattan" not in address.lower() and
+        "brooklyn" not in address.lower() and
+        "queens" not in address.lower() and 
+        "bronx" not in address.lower() and
+        "staten" not in address.lower()):
+        address += ", Manhattan"
+
     if "new york" not in address.lower() and "ny" not in address.lower():
         address += ", New York, NY"
 
