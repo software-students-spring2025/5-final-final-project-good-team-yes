@@ -8,8 +8,12 @@ import logging
 from datetime import datetime
 
 import requests
+import os
 from flask import Flask, render_template, request, jsonify, url_for, redirect, flash
 from pymongo import MongoClient
+
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = 'sandwich_tracker_secret_key'
@@ -29,9 +33,12 @@ def init_db():
     Connects to MongoDB and sets up the sandwich_db and sandwich_prices collection.
     Adds sample data if the collection is empty.
     """
+    MONGO_URI = os.environ.get("MONGO_URI")
+    MONGO_DB = os.environ.get("MONGO_DB")
+
     # Using function parameters and return values instead of globals
-    client = MongoClient("mongodb://mongodb:27017")
-    database = client["sandwich_db"]
+    client = MongoClient(MONGO_URI)
+    database = client[MONGO_DB]
     collection = database["sandwich_prices"]
 
     # Still need to set the globals for existing code
@@ -135,6 +142,25 @@ def find_nearby_sandwiches(lat, lon, radius=1):
 
     return results
 
+def filter_sandwiches(sandwiches):
+    """
+    Filters sandwiches to ensure each location is only shown once, showing
+    the most recently updated entry in case of conflict
+    """
+    unique_locations = {}
+    for sandwich in sandwiches:
+        key = (sandwich["lat"], sandwich["lon"])
+
+        # Only replaces unique location if the current sandwich was more recently updated
+        if (unique_locations.get(key) and 
+        unique_locations[key]["last_updated"] > sandwich["last_updated"]):
+            continue
+        else:
+            unique_locations[key] = sandwich
+    
+    return unique_locations.values()
+
+
 @app.route("/")
 def home():
     """Render the main application with all sandwich data."""
@@ -151,6 +177,8 @@ def home():
             query["price"] = {"$lte": max_price}
 
     sandwiches = list(COLLECTION.find(query, {"_id": 0}))
+    sandwiches = filter_sandwiches(sandwiches)
+
 
     if sandwiches:
         center_lat = sum(s["lat"] for s in sandwiches) / len(sandwiches)
@@ -197,6 +225,8 @@ def search():
 
     all_sandwiches = list(COLLECTION.find({}, {"_id": 0}))
 
+    all_sandwiches = filter(all_sandwiches)
+
     for sandwich in all_sandwiches:
         sandwich["color"] = get_marker_color(sandwich["price"])
 
@@ -212,6 +242,7 @@ def search():
         center_lat = 40.755
         center_lon = -73.978
         zoom_level = 13
+
 
     return render_template(
         "index.html",
