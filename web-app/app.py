@@ -225,7 +225,7 @@ def search():
 
     all_sandwiches = list(COLLECTION.find({}, {"_id": 0}))
 
-    all_sandwiches = filter(all_sandwiches)
+    all_sandwiches = filter_sandwiches(all_sandwiches)
 
     for sandwich in all_sandwiches:
         sandwich["color"] = get_marker_color(sandwich["price"])
