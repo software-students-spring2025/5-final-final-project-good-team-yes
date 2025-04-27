@@ -2,9 +2,9 @@ import unittest
 from unittest.mock import patch, MagicMock
 import json
 import datetime
-import math
 from flask import url_for
 import requests
+from app import filter_sandwiches
 
 class AppTestCase(unittest.TestCase):
 
@@ -80,7 +80,7 @@ class AppTestCase(unittest.TestCase):
                 "price": 8.50,
                 "last_updated": datetime.datetime.now(),
                 "distance": 1.2
-            }
+            },
         ]
 
     def test_home_status_code(self):
@@ -425,6 +425,53 @@ class AppTestCase(unittest.TestCase):
         data = json.loads(response.data)
         self.assertEqual(len(data), 0)
         """
+    
+    def test_filter_sandwiches(self):
+        mock_data = [
+            {
+                "name": "Test Deli 1",
+                "address": "123 Test St, New York, NY",
+                "lat": 40.7128,
+                "lon": -74.0060,
+                "price": 6.00,
+                "last_updated": datetime.datetime.now(),
+                "distance": 0.5  # Add distance for template rendering
+            },
+            {
+                "name": "Test Deli 2",
+                "address": "345 Test St, New York, NY",
+                "lat": 40.7456,
+                "lon": -74.0134,
+                "price": 9.00,
+                "last_updated": datetime.datetime.now(),
+                "distance": 0.2  # Add distance for template rendering
+            },
+            {
+                "name": "Test Deli 1",
+                "address": "123 Test St, New York, NY",
+                "lat": 40.7128,
+                "lon": -74.0060,
+                "price": 7.00,
+                "last_updated": datetime.datetime.now(),
+                "distance": 0.5  # Add distance for template rendering
+            },
+        ]
+
+        result = filter_sandwiches(mock_data)
+
+        self.assertEqual(len(result), 2)
+
+        test_deli_1 = {}
+        for deli in result:
+            if deli["name"] == "Test Deli 1":
+                # Makes sure test_deli_1 only shows up once
+                self.assertEqual(test_deli_1, {})
+                test_deli_1 = deli
+
+        self.assertNotEqual(test_deli_1, {})
+
+        # Makes sure most recent entry is shown
+        self.assertEqual(test_deli_1["price"], 7.00)
 
 if __name__ == '__main__':
     unittest.main() 

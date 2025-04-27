@@ -1,4 +1,5 @@
 flask
 pymongo
 pytest
-requests 
+requests
+python-dotenv
