@@ -5,6 +5,7 @@ allowing users to find affordable options in their area.
 """
 import math
 import logging
+import os
 from datetime import datetime
 
 import requests
@@ -16,6 +17,9 @@ app.secret_key = 'sandwich_tracker_secret_key'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Use environment variable with fallback to default
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://mongodb:27017")
 
 CLIENT = None
 DB = None
@@ -30,7 +34,7 @@ def init_db():
     Adds sample data if the collection is empty.
     """
     # Using function parameters and return values instead of globals
-    client = MongoClient("mongodb://mongodb:27017")
+    client = MongoClient(MONGO_URI)
     database = client["sandwich_db"]
     collection = database["sandwich_prices"]
 
