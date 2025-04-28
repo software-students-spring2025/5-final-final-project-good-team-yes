@@ -10,15 +10,15 @@ To run tests locally:
 
 ```bash
 cd web-app
-# Set an invalid MongoDB URI to ensure no real database connections
-MONGO_URI="mongodb://nonexistent-host:27017" python -m pytest test_app.py -v
+# Set invalid MongoDB URI to ensure no real database connections
+MONGO_URI="mongodb://nonexistent-host:27017" MONGO_DB="test_sandwich_db" python -m pytest test_app.py -v
 ```
 
 For test coverage:
 
 ```bash
 cd web-app
-MONGO_URI="mongodb://nonexistent-host:27017" python -m pytest test_app.py -v --cov=app
+MONGO_URI="mongodb://nonexistent-host:27017" MONGO_DB="test_sandwich_db" python -m pytest test_app.py -v --cov=app
 ```
 
 ## Ensuring Tests Do Not Access Real Database
@@ -39,11 +39,12 @@ If you suspect tests might be accessing a real database:
 
 ## Running Tests with PowerShell
 
-In PowerShell, set the environment variable before running tests:
+In PowerShell, set the environment variables before running tests:
 
 ```powershell
 # Set temporarily for the current session
 $env:MONGO_URI = "mongodb://nonexistent-host:27017"
+$env:MONGO_DB = "test_sandwich_db"
 cd web-app
 python -m pytest test_app.py -v
 ```
@@ -54,5 +55,5 @@ The project includes GitHub Actions workflows to automatically run tests on push
 
 1. Set up a Python environment
 2. Install all required dependencies
-3. Set the `MONGO_URI` environment variable to an invalid URI to ensure tests don't access a real database
+3. Set the necessary environment variables to invalid/test values to ensure tests don't access a real database
 4. Run the tests with coverage reporting 

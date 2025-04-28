@@ -1,8 +1,8 @@
 name: Python Tests
 
 on:
+  push:
   pull_request:
-
 
 jobs:
   test:
@@ -20,11 +20,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r web-app/requirements.txt
-        pip install pytest pytest-cov
+        pip install pytest pytest-cov python-dotenv
     
     - name: Run tests
       env:
         MONGO_URI: "mongodb://nonexistent-host:27017"
+        MONGO_DB: "test_sandwich_db"
       run: |
         cd web-app
         python -m pytest test_app.py -v --cov=app 
