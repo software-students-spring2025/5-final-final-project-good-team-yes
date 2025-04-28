@@ -42,7 +42,6 @@ def init_db():
 
     # Using function parameters and return values instead of globals
     client = MongoClient(MONGO_URI)
-    database = client["sandwich_db"]
     database = client[MONGO_DB]
     collection = database["sandwich_prices"]
 
