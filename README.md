@@ -1,5 +1,5 @@
-[![build.yml](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/build.yml/badge.svg)](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/build.yml/badge.svg)
-[![tests.yml](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/tests.yml/badge.svg)](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/tests.yml/badge.svg)
+![build.yml](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/build.yml/badge.svg?branch=main)
+![tests.yml](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/tests.yml/badge.svg)
 
 
 # NYC Sandwich Price Tracker
