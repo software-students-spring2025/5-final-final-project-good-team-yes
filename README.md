@@ -23,8 +23,8 @@ This project uses requirements.txt for managing dependencies. To add new depende
 ## Development
 
 Docker containers:
-https://hub.docker.com/r/snowyochole/sandwich-mongodb
-https://hub.docker.com/r/snowyochole/sandwich-web-app
+- MongoDB variant: https://hub.docker.com/r/snowyochole/sandwich-mongodb
+- Web App variant: https://hub.docker.com/r/snowyochole/sandwich-web-app
 
 ## Run Locally
 
