@@ -3,15 +3,14 @@
 
 
 # NYC Sandwich Price Tracker
-[![App hosted on Droplet by Digital Ocean](104.236.230.96:5003)]
 
 A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City with user input.
 
 ## Developers
-Nick Michael https://github.com/NMichael111
-Helen Kao https://github.com/hhelenho
-Isaac Fisher https://github.com/isaac1000000
-Ray Ochotta https://github.com/SnowyOchole
+- Nick Michael https://github.com/NMichael111
+- Helen Kao https://github.com/hhelenho
+- Isaac Fisher https://github.com/isaac1000000
+- Ray Ochotta https://github.com/SnowyOchole
 
 
 ## Dependency Management
