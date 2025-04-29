@@ -36,6 +36,6 @@ Docker containers:
 docker compose up --build
 ```
 ### 4. Visit localhost
-https://104.236.230.96:5003
+http://104.236.230.96:5003/
 
 
