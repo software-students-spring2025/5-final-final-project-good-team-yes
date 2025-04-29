@@ -4,7 +4,7 @@
 
 # NYC Sandwich Price Tracker
 
-A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City with user input.
+A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City with user input. You can add any deli with any price, and other users will be able to view it. Have fun comparing and contrasting different prices of delis?
 
 ## Developers
 - Nick Michael https://github.com/NMichael111
