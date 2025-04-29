@@ -41,16 +41,16 @@ jobs:
       - name: build docker image 1
         run: docker build --no-cache -t sandwich-gang ./build
       - name: Tag the Docker Image
-        run: docker tag sandwich-mongo snowyochole/sandwich-gang:${GITHUB_SHA::7}
+        run: docker tag sandwich-mongo snowyochole/sandwich-gang:mongo
       - name: Push image to Docker Hub
-        run: docker push $(echo $IMAGE_NAME):${GITHUB_SHA::7}
+        run: docker push $(echo $IMAGE_NAME):mongo
         #app
       - name: build docker image 2
         run: docker build --no-cache -t sandwich-gang ./build
       - name: Tag the Docker Image
-        run: docker tag sandwich-app snowyochole/sandwich-gang:${GITHUB_SHA::7}
+        run: docker tag sandwich-app snowyochole/sandwich-gang:latest
       - name: Push image to Docker Hub
-        run: docker push $(echo $IMAGE_NAME):${GITHUB_SHA::7}
+        run: docker push $(echo $IMAGE_NAME):latest
         
   
   deploy:
