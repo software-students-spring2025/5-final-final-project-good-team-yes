@@ -3,7 +3,7 @@
 [![Web App CI/CD](https://github.com/user/repo/actions/workflows/web-app.yml/badge.svg)](https://github.com/user/repo/actions/workflows/web-app.yml)
 [![MongoDB CI/CD](https://github.com/user/repo/actions/workflows/mongodb.yml/badge.svg)](https://github.com/user/repo/actions/workflows/mongodb.yml)
 
-A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City.
+A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City with user input.
 
 ## Dependency Management
 
