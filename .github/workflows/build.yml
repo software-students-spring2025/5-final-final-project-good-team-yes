@@ -4,12 +4,16 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
-      version:
+      version: 
         description: 'Image version'
         required: true
 
 
 jobs:
+  strategy:
+    matrix:
+      python: ["3.13.3"]
+      
   build_and_test:
     runs-on: ubuntu-latest
     steps:
