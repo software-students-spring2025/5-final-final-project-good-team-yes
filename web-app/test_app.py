@@ -4,7 +4,12 @@ import json
 import datetime
 from flask import url_for
 import requests
+import os
 from app import filter_sandwiches
+
+# Force environment variables for testing only
+os.environ["MONGO_URI"] = "mongodb://nonexistent-host:27017"
+os.environ["MONGO_DB"] = "test_sandwich_db"
 
 class AppTestCase(unittest.TestCase):
 
@@ -22,6 +27,13 @@ class AppTestCase(unittest.TestCase):
         # Now import app after patching
         import app
         from app import get_marker_color, geocode_address, find_nearby_sandwiches
+        
+        # Patch global COLLECTION and related variables
+        app.CLIENT = cls.mock_mongo.return_value
+        app.DB = cls.mock_mongo.return_value.__getitem__.return_value
+        app.COLLECTION = cls.mock_collection
+        app.COLLECTION_HELPER = cls.mock_collection
+        
         cls.app = app.app
         # Also make the collection available to the test class to patch in individual tests
         cls.app_module = app

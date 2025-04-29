@@ -5,10 +5,10 @@ allowing users to find affordable options in their area.
 """
 import math
 import logging
+import os
 from datetime import datetime
 
 import requests
-import os
 from flask import Flask, render_template, request, jsonify, url_for, redirect, flash
 from pymongo import MongoClient
 
@@ -20,6 +20,10 @@ app.secret_key = 'sandwich_tracker_secret_key'
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Use environment variable with fallback to default
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://mongodb:27017")
+MONGO_DB = os.environ.get("MONGO_DB", "sandwich_db")
 
 CLIENT = None
 DB = None
@@ -33,9 +37,6 @@ def init_db():
     Connects to MongoDB and sets up the sandwich_db and sandwich_prices collection.
     Adds sample data if the collection is empty.
     """
-    MONGO_URI = os.environ.get("MONGO_URI")
-    MONGO_DB = os.environ.get("MONGO_DB")
-
     # Using function parameters and return values instead of globals
     client = MongoClient(MONGO_URI)
     database = client[MONGO_DB]
