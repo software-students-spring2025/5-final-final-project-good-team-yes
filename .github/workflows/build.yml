@@ -37,15 +37,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-        #mongo
-      - name: build docker image 1
-        run: docker build --no-cache -t sandwich-gang ./build
-      - name: Tag the Docker Image
-        run: docker tag sandwich-mongo snowyochole/sandwich-gang:mongo
-      - name: Push image to Docker Hub
-        run: docker push $(echo $IMAGE_NAME):mongo
         #app
-      - name: build docker image 2
+      - name: build docker image 
         run: docker build --no-cache -t sandwich-gang ./build
       - name: Tag the Docker Image
         run: docker tag sandwich-app snowyochole/sandwich-gang:latest
