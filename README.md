@@ -1,9 +1,18 @@
 [![build.yml](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/build.yml/badge.svg)](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/build.yml/badge.svg)
+[![tests.yml](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/tests.yml/badge.svg)](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/tests.yml/badge.svg)
+
 
 # NYC Sandwich Price Tracker
 [![App hosted on Droplet by Digital Ocean](104.236.230.96:5003)]
 
 A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City with user input.
+
+## Developers
+Nick Michael https://github.com/NMichael111
+Helen Kao https://github.com/hhelenho
+Isaac Fisher https://github.com/isaac1000000
+Ray Ochotta https://github.com/SnowyOchole
+
 
 ## Dependency Management
 
@@ -15,8 +24,18 @@ This project uses requirements.txt for managing dependencies. To add new depende
 ## Development
 
 Docker containers:
-[![MongoDB variant](https://hub.docker.com/layers/snowyochole/sandwich-gang/mongo/images/sha256-5fe3f74a9aabb8adb5d381c38b5f8d6cd6d540aa52d7f33b37250f985ce0ddc3)]
-[![Webapp variant](https://hub.docker.com/layers/snowyochole/sandwich-gang/latest/images/sha256-5e8380a459d644ef8a457ac8411be0bcc9424db86a0ffc2e02228b31ee182d26)]
+[![MongoDB variant](https://hub.docker.com/r/snowyochole/sandwich-mongodb)]
+[![Webapp variant](https://hub.docker.com/r/snowyochole/sandwich-web-app)]
 
+## Run Locally
+
+### 1. Download Docker Desktop
+### 2. Clone our repository
+### 3. Run with Docker
+```
+docker compose up --build
+```
+### 4. Visit localhost
+https://104.236.230.96:5003
 
 
