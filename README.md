@@ -1,3 +1,5 @@
+![build.yml](https://github.com/software-students-spring2025/5-final-final-project-good-team-yes/actions/workflows/build.yml/badge.svg?event=pull_request)
+
 # NYC Sandwich Price Tracker
 
 [![Web App CI/CD](https://github.com/user/repo/actions/workflows/web-app.yml/badge.svg)](https://github.com/user/repo/actions/workflows/web-app.yml)
