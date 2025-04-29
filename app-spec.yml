@@ -51,3 +51,7 @@ services:
   instance_count: 2
   instance_size_slug: apps-s-1vcpu-1gb
   name: snowyochole-sandwich-gang2
+
+  env:
+    IMAGE_NAME: "snowyochole/sandwich-gang"
+    MONGO_URI: "https://localhost:5003"
