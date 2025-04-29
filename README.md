@@ -6,6 +6,9 @@
 
 A web application that tracks the price of sausage, egg, and cheese sandwiches from delis across New York City with user input. You can add any deli with any price, and other users will be able to view it. Have fun comparing and contrasting different prices of delis?
 
+Visit us now! http://104.236.230.96:5003/
+We are hosted on a Digital Ocean Droplet.
+
 ## Developers
 - Nick Michael https://github.com/NMichael111
 - Helen Kao https://github.com/hhelenho
@@ -35,6 +38,6 @@ Docker containers:
 docker compose up --build
 ```
 ### 4. Visit localhost
-http://104.236.230.96:5003/
+
 
 
